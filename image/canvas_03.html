@@ -10,17 +10,23 @@
     <!-- button area -->
     <div>
       <button id="grayScaleButton">흑백필터</button>
+      <button id="yCrCbScaleButton">YCrCb</button>
+      <button id="yPrPbScaleButton">YPrPb</button>
     </div>
     <!-- canvas -->
     <canvas></canvas>
   </body>
   <script>
     // Naver Blog <pvelo>
-    // https://blog.naver.com/psj9102/222970269576
-
+    // https://blog.naver.com/psj9102/222971368095
     const grayScaleButton = document.querySelector("#grayScaleButton");
+    const yCrCbScaleButton = document.querySelector("#yCrCbScaleButton");
+    const yPrPbScaleButton = document.querySelector("#yPrPbScaleButton");
+
     const canvas = document.querySelector("canvas");
     const context = canvas.getContext("2d");
+
+    let originalImageData = null;
 
     // unsplash 이미지 경로
     const unsplash =
@@ -35,11 +41,26 @@
       canvas.width = image.width;
       canvas.height = image.height;
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      // 원본 이미지 데이터 저장
+      originalImageData = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
     };
 
-    // 색반전 이벤트
+    // originImageData 를 ImageData 객체로 만들어 새로운 원본 ImageData를 돌려준다.
+    function copyData() {
+      const imageData = context.createImageData(canvas.width, canvas.height);
+      imageData.data.set(originalImageData.data);
+      return imageData;
+    }
+
+    // RGB 흑백
     grayScaleButton.addEventListener("click", function (ev) {
-      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const imageData = copyData();
       const data = imageData.data;
 
       for (let i = 0; i < data.length; i += 4) {
@@ -47,6 +68,35 @@
         data[i] = averageColorCode;
         data[i + 1] = averageColorCode;
         data[i + 2] = averageColorCode;
+      }
+
+      context.putImageData(imageData, 0, 0);
+    });
+
+    yCrCbScaleButton.addEventListener("click", function (ev) {
+      const imageData = copyData();
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const Y =
+          data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722;
+        data[i] = Y;
+        data[i + 1] = Y;
+        data[i + 2] = Y;
+      }
+
+      context.putImageData(imageData, 0, 0);
+    });
+
+    yPrPbScaleButton.addEventListener("click", function (ev) {
+      const imageData = copyData();
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const Y = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        data[i] = Y;
+        data[i + 1] = Y;
+        data[i + 2] = Y;
       }
 
       context.putImageData(imageData, 0, 0);
