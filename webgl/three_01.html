@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Spot Light Basic</title>
     <link href="./css/global.css" rel="stylesheet" />
   </head>
-  <body>
-    <div id="container"></div>
-  </body>
+  <body></body>
   <script type="importmap">
     {
       "imports": {
@@ -22,52 +20,37 @@
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-    const container = document.querySelector("#container");
-
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-
+    // camera setting
     const camera = new THREE.PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
       1,
       1000
     );
+    camera.position.z = 40;
 
-    const controls = new OrbitControls(camera, renderer.domElement);
+    // scene setting
+    const scene = new THREE.Scene();
 
-    camera.position.set(0, 0, 20);
+    // renderer setting
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // axes 축 helper
-    scene.add(new THREE.AxesHelper(3000));
+    // canvas append body
+    document.body.appendChild(renderer.domElement);
+
+    // axes helper 추가
+    const axesHelper = new THREE.AxesHelper(500);
+    scene.add(axesHelper);
+
+    // 컨트롤러 추가
+    // left mouse = rotation
+    // right mouse = pan
+    // scroll = zoom
+    const control = new OrbitControls(camera, renderer.domElement);
 
     /**
-     * Light 구간
-     */
-    const light = new THREE.SpotLight(0xffff00, 5);
-    light.castShadow = true;
-    // 빛을 비추는 범위를 설정할 수 있다.
-    light.angle = Math.PI / 20;
-
-    // 시작점으로부터 빛이 도달하는 거리 (y to distance)
-    light.distance = 30;
-
-    // float 중심으로 부터 빛 번짐의 농도
-    // 값이 작을수록 진해진다.
-    // https://cglearn.codelight.eu/pub/computer-graphics/shadows
-    light.penumbra = 0.5;
-
-    light.position.y = 20;
-
-    scene.add(light);
-
-    const lightHelper = new THREE.SpotLightHelper(light, 0xffff00);
-    scene.add(lightHelper);
-    /**
-     * Light 구간
+     * 추가 코드는 여기서 부터
      */
 
     /**
@@ -80,18 +63,35 @@
     });
 
     const plane = new THREE.Mesh(geometry, material);
-    scene.add(plane);
-
     plane.rotation.x = Math.PI * 0.5;
+    scene.add(plane);
     /**
      * Plane 구간
      */
 
-    function render() {
-      window.requestAnimationFrame(render);
+    /**
+     * Light 구간
+     */
+    const light = new THREE.SpotLight(0xffff00);
+    light.position.y = 15;
+    light.distance = 25;
+    light.angle = Math.PI / 10;
+    light.penumbra = 0.5;
+
+    // light.castShadow = true;
+    scene.add(light);
+
+    const lightHelper = new THREE.SpotLightHelper(light, 0xffff00);
+    scene.add(lightHelper);
+    /**
+     * Light 구간
+     */
+
+    function animate() {
+      window.requestAnimationFrame(animate);
       renderer.render(scene, camera);
     }
 
-    render();
+    animate();
   </script>
 </html>

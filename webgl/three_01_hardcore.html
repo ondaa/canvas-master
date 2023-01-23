@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spot Light Hardcore</title>
+    <link href="./css/global.css" rel="stylesheet" />
+  </head>
+  <body></body>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./build/three.module.js",
+        "three/addons/": "./jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    // camera setting
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      1,
+      1000
+    );
+    camera.position.z = 40;
+
+    // scene setting
+    const scene = new THREE.Scene();
+
+    // renderer setting
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // canvas append body
+    document.body.appendChild(renderer.domElement);
+
+    // axes helper 추가
+    const axesHelper = new THREE.AxesHelper(500);
+    scene.add(axesHelper);
+
+    // 컨트롤러 추가
+    // left mouse = rotation
+    // right mouse = pan
+    // scroll = zoom
+    const control = new OrbitControls(camera, renderer.domElement);
+
+    /**
+     * 추가 코드는 여기서 부터
+     */
+
+    /**
+     * Plane 구간
+     */
+    const geometry = new THREE.PlaneGeometry(200, 200);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+    });
+
+    const plane = new THREE.Mesh(geometry, material);
+    plane.rotation.x = Math.PI * 0.5;
+    scene.add(plane);
+    /**
+     * Plane 구간
+     */
+
+    /**
+     * Light 구간
+     */
+
+    // 제자리에서 특정 포인트를 비추는 조명 청색
+    const light1 = new THREE.SpotLight(0x00ffff);
+    light1.position.y = 80;
+    light1.angle = Math.PI / 15;
+    light1.penumbra = 0.8;
+
+    // 회전하는 조명 노란색
+    const light2 = new THREE.SpotLight(0xffff00);
+    light2.position.y = 80;
+    light2.angle = Math.PI / 10;
+    light2.penumbra = 0.5;
+
+    // 전체조명 하얀색
+    const light3 = new THREE.SpotLight(0xffffff);
+    light3.position.y = 100;
+    light3.angle = Math.PI / 5;
+    light3.intensity = 0.8;
+    light3.penumbra = 0.5;
+
+    scene.add(light1);
+    scene.add(light2);
+    scene.add(light3);
+
+    const lightHelper1 = new THREE.SpotLightHelper(light1, 0x00ffff);
+    const lightHelper2 = new THREE.SpotLightHelper(light2, 0xffff00);
+    const lightHelper3 = new THREE.SpotLightHelper(light3, 0xffffff);
+
+    // 헬퍼추가
+    scene.add(lightHelper1);
+    scene.add(lightHelper2);
+    scene.add(lightHelper3);
+
+    // Object3D를 Light에 추가해서 position을 변경해줘야 실질적으로 빛이 따라오게 된다.
+    // https://threejs.org/docs/#api/en/lights/SpotLight.target
+
+    const target1 = new THREE.Object3D();
+    light1.target = target1;
+
+    // 위에서 말했듯이 빛 자체를 움직이려면 target의 position을 바꿔야한다.
+    target1.position.x = 45; // x 축으로 45
+    target1.position.z = 45; // z 축으로 45
+    lightHelper1.update(); // helper update .. update 하지 않으면 이전 위치를 계속 가리킴
+
+    const target2 = new THREE.Object3D();
+    light2.target = target2;
+
+    scene.add(light1.target);
+    scene.add(light2.target);
+    /**
+     * Light 구간
+     */
+
+    function animate(timestamp) {
+      window.requestAnimationFrame(animate);
+
+      // 외곽 : light2 객체의 위치
+      const z = Math.cos(timestamp / 1000) * 80;
+      const x = Math.sin(timestamp / 1000) * 80;
+      light2.position.z = z;
+      light2.position.x = x;
+
+      // 내각 : 빛의 위치
+      const tz = Math.cos(timestamp / 1000) * 30;
+      const tx = Math.sin(timestamp / 1000) * 30;
+      target2.position.z = tz;
+      target2.position.x = tx;
+
+      lightHelper2.update();
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</html>
