@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base Code</title>
+    <link href="./css/global.css" rel="stylesheet" />
+  </head>
+  <body></body>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./build/three.module.js",
+        "three/addons/": "./jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    // camera setting
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      1,
+      1000
+    );
+    camera.position.z = 100;
+    camera.position.x = 80;
+    camera.position.y = 60;
+
+    // scene setting
+    const scene = new THREE.Scene();
+
+    // renderer setting
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // canvas append body
+    document.body.appendChild(renderer.domElement);
+
+    // axes helper 추가
+    const axesHelper = new THREE.AxesHelper(500);
+    scene.add(axesHelper);
+
+    // 컨트롤러 추가
+    // left mouse = rotation
+    // right mouse = pan
+    // scroll = zoom
+    const control = new OrbitControls(camera, renderer.domElement);
+
+    /**
+     * 추가 코드는 여기서 부터
+     */
+    const planeGeometry = new THREE.PlaneGeometry(100, 100);
+    const planeMeterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const plane = new THREE.Mesh(planeGeometry, planeMeterial);
+    plane.rotation.x = Math.PI * -0.5;
+    plane.receiveShadow = true;
+    scene.add(plane);
+
+    const geometry = new THREE.BoxGeometry(10, 10, 10);
+    const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const cube1 = new THREE.Mesh(geometry, material);
+    cube1.position.y = 10;
+    cube1.castShadow = true;
+
+    const cube2 = cube1.clone();
+    cube2.position.x = 20;
+    cube2.position.z = 20;
+
+    const cube3 = cube1.clone();
+    cube3.position.x = -20;
+    cube3.position.z = -20;
+
+    scene.add(cube1);
+    scene.add(cube2);
+    scene.add(cube3);
+
+    const light = new THREE.DirectionalLight(0xffe4ff, 0.8);
+    light.position.y = 30;
+    light.castShadow = true;
+    light.shadow.mapSize.width = 512;
+    light.shadow.mapSize.height = 512;
+    light.shadow.camera.near = 0.5;
+    light.shadow.camera.far = 500;
+    light.shadow.camera.right = 50;
+    light.shadow.camera.left = -50;
+    light.shadow.camera.top = 50;
+    light.shadow.camera.bottom = -50;
+
+    scene.add(light);
+
+    const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+    scene.add(cameraHelper);
+
+    const target = new THREE.Object3D();
+    target.castShadow = true;
+    light.target = target;
+    scene.add(light.target);
+
+    const helper = new THREE.DirectionalLightHelper(light, 5);
+    scene.add(helper);
+
+    function animate(timestamp) {
+      window.requestAnimationFrame(animate);
+
+      const z = Math.cos(timestamp / 1000) * 100;
+      const x = Math.sin(timestamp / 1000) * 100;
+      light.position.z = z;
+      light.position.x = x;
+
+      const tz = Math.cos(timestamp / 1000) * 30;
+      const tx = Math.sin(timestamp / 1000) * 30;
+      target.position.z = tz;
+      target.position.x = tx;
+
+      helper.update();
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</html>
