@@ -11,8 +11,8 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "./build/three.module.js",
-        "three/addons/": "./jsm/"
+        "three": "../build/three.module.js",
+        "three/addons/": "../jsm/"
       }
     }
   </script>
@@ -52,6 +52,12 @@
     /**
      * 추가 코드는 여기서 부터
      */
+    const planeGeometry = new THREE.PlaneGeometry(200, 100);
+    const planeMeterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const plane = new THREE.Mesh(planeGeometry, planeMeterial);
+    plane.rotation.x = Math.PI * -0.5;
+    plane.receiveShadow = true;
+    scene.add(plane);
 
     function animate() {
       window.requestAnimationFrame(animate);
