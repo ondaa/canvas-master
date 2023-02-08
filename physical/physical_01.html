@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/global.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas></canvas>
+  </body>
+  <script type="importmap">
+    {
+      "imports": {
+        "objects/": "./objects/"
+      }
+    }
+  </script>
+  <script type="module">
+    import { Circle } from "objects/Circle.js";
+
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const circle = new Circle(ctx, 0, 0, 20);
+
+    function animate() {
+      window.requestAnimationFrame(animate);
+      circle.accel();
+    }
+
+    // animate();
+  </script>
+</html>
